@@ -10,13 +10,13 @@ def get_installed_software():
         subkey = winreg.EnumKey(key, i)
         subkey_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" + "\\" + subkey
         subkey_handle = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, subkey_path)
-
+        
         try:
-            software["Name"] = winreg.QueryValueEx(subkey_handle, "DisplayName")[0]
+            software["Vendor"] = winreg.QueryValueEx(subkey_handle, "Publisher")[0]
         except:
             pass
         try:
-            software["Vendor"] = winreg.QueryValueEx(subkey_handle, "Publisher")[0]
+            software["Name"] = winreg.QueryValueEx(subkey_handle, "DisplayName")[0]
         except:
             pass
         try:

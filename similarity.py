@@ -1,11 +1,39 @@
 import math
+from spacy_ner import * 
 
-def importance(string): #potentially useful
+def importance(string):
     importance = []
 
     for word in string.split():
-        if word[0].upper() == word[0]:
-            pass
+        entity_type = is_entity(word)
+        if entity_type != False:
+            if entity_type == "ORG":
+                importance.append(1)
+            
+            else:
+                importance.append(0.75)
+
+        else:
+            importance.append(0.5)
+
+    return importance
+
+def string_similarity_vector(cpe_string,searched_string,importance_vector):
+    if cpe_string == searched_string:
+        return 1
+
+    score = 0
+
+    searched_string = searched_string.lower()
+
+    for i,word in enumerate(searched_string.split()):
+        if word in cpe_string or cpe_string in word:
+            score += 1 * importance_vector[i]
+
+        else:
+            score -= 0.5 * importance_vector[i]
+
+    return 1 / (1 + math.exp(-score))
 
 def string_similarity(cpe_string,searched_string):
     score = 0
@@ -29,19 +57,19 @@ def string_similarity(cpe_string,searched_string):
     else:
         for word in cpe_string.split():
             if word in searched_string:
-                score += 0.25
+                score += 1
             
             else:
-                score -= 0.1
+                score -= 0.5
 
         for word in searched_string.split():
             if word in cpe_string:
-                score += 0.25
+                score += 1
             
             else:
-                score -= 0.1
+                score -= 0.5
 
-    return 1 / (1 + math.exp(-score))
+    return 0.1 / (1 + math.exp(-score))
 
 def version_similarity(cpe_version,version):
     cpe_version_list = cpe_version.split(".")
@@ -53,14 +81,14 @@ def version_similarity(cpe_version,version):
         return 1
 
     elif cpe_version in version:
-        score += 2
+        score += 1
 
-        score -= len(version.replace(cpe_version,"")) * 0.01
+        score -= len(version.replace(cpe_version,"")) * 0.5
 
     elif version in cpe_version:
-        score += 2
+        score += 1
 
-        score -= len(cpe_version.replace(version,"")) * 0.01
+        score -= len(cpe_version.replace(version,"")) * 0.5
 
     if len(cpe_version_list) < len(version_list):
         for i,number in enumerate(cpe_version_list):
