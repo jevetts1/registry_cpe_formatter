@@ -1,10 +1,10 @@
 import winreg
 
-def get_installed_software():
+def get_installed_software(): #returns a list of dictionaries of {Vendor:vendor,Name:name,Version:version}
     software_list = []
-    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
+    key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall") #software information is easy to access in the Uninstall registry key
 
-    for i in range(winreg.QueryInfoKey(key)[0]):
+    for i in range(winreg.QueryInfoKey(key)[0]): #iterates through all subkeys (software) then appends a dictionary to the list with the information inside
         software = {}
 
         subkey = winreg.EnumKey(key, i)

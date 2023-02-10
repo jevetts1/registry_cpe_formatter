@@ -1,10 +1,10 @@
 import math,re
 
-def is_subset(string_super,string_sub):
+def is_subset(string_super,string_sub): #Returns true if string_sub is contained within string_super
     if string_sub in string_super:return True
     else: return False
 
-def is_subword(string_super,string_sub):
+def is_subword(string_super,string_sub): #Returns true if string_sub is a word within string_super
     for word in string_super.split():
         if string_sub == word:
             return True
@@ -22,7 +22,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     score = 0
 
-    for word in cpe_vendor.split("_"):
+    for word in cpe_vendor.split("_"): #checks if each word in the cpe vendor is in the software name or vendor
         #vendor to vendor relationship
         if is_subword(software_vendor,word):
             score += 1
@@ -43,7 +43,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
         else:
             score -= 0.1
 
-    for word in cpe_name.split("_"):
+    for word in cpe_name.split("_"): #checks if each word in the cpe name is in the software name or vendor
         #name to name relationship
         if is_subword(software_name,word):
             score += 1
@@ -66,7 +66,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     versions = [software_version]
 
-    version_in_name = re.search(r"([0-9]+.)+[0-9]+",software_name)
+    version_in_name = re.search(r"([0-9]+.)+[0-9]+",software_name) #checks if a version number is included in the name - often more accurate than what is stored on the registry
 
     if version_in_name:
         version_in_name = software_name[version_in_name.span()[0]:version_in_name.span()[1]]
@@ -74,7 +74,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     version_scores = []
 
-    for version in versions:
+    for version in versions: #calculates a version similarity score for both the version in the name (if there is one) and the actual listed software version
         current_score = 0
 
         cpe_version_split = cpe_version.split(".")
@@ -96,13 +96,13 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
                 else:
                     current_score -= 0.5 / (i + 1)
 
-        score -= abs(len(version_split) - len(cpe_version_split)) * 0.5
+        current_score -= abs(len(version_split) - len(cpe_version_split)) * 0.5
         
         version_scores.append(current_score)
     
-    score += max(version_scores)
+    score += max(version_scores) 
 
-    return 1 / (1 + math.exp(-score))
+    return 1 / (1 + math.exp(-score)) #return a value between 0 and 1
 
 if __name__ == "__main__":
     print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python 3.9.7 (x64)","1.0.0.9"))
