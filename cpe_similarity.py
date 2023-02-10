@@ -15,9 +15,9 @@ def return_relationship(string_super,string_sub):
         
 
 def return_similarity(cpe,software_vendor,software_name,software_version):
-    cpe_vendor = cpe.split(":")[3]
-    cpe_name = cpe.split(":")[4]
-    cpe_version = cpe.split(":")[5]
+    cpe_vendor = cpe[3]
+    cpe_name = cpe[4]
+    cpe_version = cpe[5]
 
     software_vendor = software_vendor.lower()
     software_name = software_name.lower()
@@ -32,14 +32,14 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
         score += score_system[return_relationship(software_vendor,word)]
 
         #name to vendor relationship
-        score += score_system[return_relationship(software_name,word)] * 0.6
+        score += score_system[return_relationship(software_name,word)] * 0.25
 
     for word in cpe_name.replace("-","_").split("_"): #checks if each word in the cpe name is in the software name or vendor
         #name to name relationship
         score += score_system[return_relationship(software_name,word)]
 
         #name to vendor relationship
-        score += score_system[return_relationship(software_vendor,word)] * 0.6
+        score += score_system[return_relationship(software_vendor,word)] * 0.25
 
     versions = [software_version]
 

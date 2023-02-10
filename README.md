@@ -8,7 +8,8 @@ registry_query.py
 Contains a function that gathers information about software in the Uninstall registry.
 
 cpe_dict_loader.py
-Has 3 functions that create a text file of NVDs CPEs, load the whole dataframe, and load the CPE text file.
+Has functions that create a text file of NVDs CPEs, json of the CPEs, load the whole dataframe, and load the CPEs from text or json files.
 
 QUICK START
+Run `create_processed_cpe_json()` to create the json file.
 On the main script, run the imports, software inventory and cpe_list cells and then the matches cell.
