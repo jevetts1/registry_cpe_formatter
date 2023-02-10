@@ -22,7 +22,7 @@ def load_dict_dataframe(): #returns the entire NVD dictionary dataframe
 
 def load_cpe_txt(): #loads the cpe file in the current directory
     with open("NVD_cpes.txt","r") as file:
-        cpes = file.readlines()
+        cpes = file.read().splitlines()
         file.close()
 
     return cpes
