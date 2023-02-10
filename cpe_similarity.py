@@ -1,15 +1,18 @@
 import math,re
 
-def is_subset(string_super,string_sub): #Returns true if string_sub is contained within string_super
-    if string_sub in string_super:return True
-    else: return False
-
-def is_subword(string_super,string_sub): #Returns true if string_sub is a word within string_super
+def return_relationship(string_super,string_sub):
+    if string_sub == string_super:
+        return "EQUAL"
+    
     for word in string_super.split():
         if string_sub == word:
-            return True
-    
-    return False
+            return "SUBWORD"
+
+    if string_sub in string_super:
+        return "SUBSTRING"
+
+    return "NONE"
+        
 
 def return_similarity(cpe,software_vendor,software_name,software_version):
     cpe_vendor = cpe.split(":")[2]
@@ -22,47 +25,21 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     score = 0
 
-    for word in cpe_vendor.split("_"): #checks if each word in the cpe vendor is in the software name or vendor
+    score_system = {"EQUAL":1,"SUBWORD":0.75,"SUBSTRING":0.15,"NONE":-0.5}
+
+    for word in cpe_vendor.replace("-","_").split("_"): #checks if each word in the cpe vendor is in the software name or vendor
         #vendor to vendor relationship
-        if is_subword(software_vendor,word):
-            score += 1
-
-        elif is_subset(software_vendor,word):
-            score += 0.25
-
-        else:
-            score -= 0.5
+        score += score_system[return_relationship(software_vendor,word)]
 
         #name to vendor relationship
-        if is_subword(software_name,word):
-            score += 1
+        score += score_system[return_relationship(software_name,word)] * 0.6
 
-        elif is_subset(software_name,word):
-            score += 0.25
-
-        else:
-            score -= 0.1
-
-    for word in cpe_name.split("_"): #checks if each word in the cpe name is in the software name or vendor
+    for word in cpe_name.replace("-","_").split("_"): #checks if each word in the cpe name is in the software name or vendor
         #name to name relationship
-        if is_subword(software_name,word):
-            score += 1
+        score += score_system[return_relationship(software_name,word)]
 
-        elif is_subset(software_name,word):
-            score += 0.25
-
-        else:
-            score -= 0.5
-
-        #vendor to name relationship
-        if is_subword(software_vendor,word):
-            score += 1
-
-        elif is_subset(software_vendor,word):
-            score += 0.25
-
-        else:
-            score -= 0.1
+        #name to vendor relationship
+        score += score_system[return_relationship(software_vendor,word)] * 0.6
 
     versions = [software_version]
 
@@ -106,4 +83,4 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
 if __name__ == "__main__":
     print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python 3.9.7 (x64)","1.0.0.9"))
-    print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python (x64)","1.0.0.9"))
+    print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python","3.7.7"))
