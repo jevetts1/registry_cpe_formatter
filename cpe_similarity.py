@@ -15,9 +15,9 @@ def return_relationship(string_super,string_sub):
         
 
 def return_similarity(cpe,software_vendor,software_name,software_version):
-    cpe_vendor = cpe.split(":")[2]
-    cpe_name = cpe.split(":")[3]
-    cpe_version = cpe.split(":")[4]
+    cpe_vendor = cpe.split(":")[3]
+    cpe_name = cpe.split(":")[4]
+    cpe_version = cpe.split(":")[5]
 
     software_vendor = software_vendor.lower()
     software_name = software_name.lower()
