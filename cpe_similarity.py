@@ -1,4 +1,5 @@
 import math,re
+from string_matching import match_string
 
 def return_relationship(string_super,string_sub):
     if string_sub == string_super:
@@ -14,14 +15,12 @@ def return_relationship(string_super,string_sub):
     return "NONE"
         
 
-def return_similarity(cpe,software_vendor,software_name,software_version):
+def return_similarity(cpe,software_vendor,software_name):
     cpe_vendor = cpe[3]
     cpe_name = cpe[4]
-    cpe_version = cpe[5]
 
     software_vendor = software_vendor.lower()
     software_name = software_name.lower()
-    software_version = software_version.lower()
 
     score = 0
 
@@ -40,6 +39,13 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
         #name to vendor relationship
         score += score_system[return_relationship(software_vendor,word)] * 0.25
+
+    return 1 / (1 + math.exp(-score)) #return a value between 0 and 1
+
+def return_version_similarity(cpe,software_name,software_version):
+    cpe_version = cpe[5]
+
+    score = 0
 
     versions = [software_version]
 
@@ -79,8 +85,11 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
     
     score += max(version_scores) 
 
+    if cpe_version == "-":
+        score -= 1
+
     return 1 / (1 + math.exp(-score)) #return a value between 0 and 1
 
 if __name__ == "__main__":
-    print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python 3.9.7 (x64)","1.0.0.9"))
+    print(return_similarity("cpe:2.3:a:python:python:3.9.7","Python Software Foundation","Python 3.9.7 (x64)","1.0.0.9"))
     print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python","3.7.7"))
