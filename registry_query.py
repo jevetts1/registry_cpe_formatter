@@ -27,7 +27,7 @@ def get_installed_software(): #returns a list of dictionaries of {Vendor:vendor,
             try:
                 software["Version"] = winreg.QueryValueEx(subkey_handle, "DisplayVersion")[0]
             except:
-                pass
+                software["Version"] = ""
 
             software_list.append(software)
 
