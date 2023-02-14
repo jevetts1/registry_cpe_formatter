@@ -1,10 +1,12 @@
 import math,re
+import numpy as np
+from difflib import SequenceMatcher
 
 def return_relationship(string_super,string_sub):
     if string_sub == string_super:
         return "EQUAL"
     
-    for word in string_super.split():
+    for word in string_super.lower().replace("_"," ").replace("-"," ").split(" "):
         if string_sub == word:
             return "SUBWORD"
 
@@ -12,7 +14,13 @@ def return_relationship(string_super,string_sub):
         return "SUBSTRING"
 
     return "NONE"
-        
+
+def return_string_similarity(string_super,string_sub):
+    if string_super == string_sub:
+        return 1
+    
+    else:
+        return SequenceMatcher(None,string_super,string_sub).ratio()
 
 def return_similarity(cpe,software_vendor,software_name,software_version):
     cpe_vendor = cpe[3]
@@ -79,8 +87,35 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
     
     score += max(version_scores) 
 
-    return 1 / (1 + math.exp(-score)) #return a value between 0 and 1
+    return score
+
+def return_importance_weighted_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance):
+    cpe_vendor = cpe[3]
+
+    software_vendor = software_vendor.lower()
+    software_name = software_name.lower()
+
+    score = 0
+
+    software_vendor_split = software_vendor.replace("_"," ").replace("-"," ").split(" ")
+    software_name_split = software_name.replace("_"," ").replace("-"," ").split(" ")
+
+    vendor_importance_weighted = [0 for x in range(len(software_vendor_split))]
+    name_importance_weighted = [0 for x in range(len(software_name_split))]
+
+    for i,word in enumerate(software_vendor_split):
+        if word in cpe_vendor:
+            vendor_importance_weighted[i] += vendor_importance[i]
+
+    for i,word in enumerate(software_name_split):
+        if word in cpe_vendor:
+            name_importance_weighted[i] += name_importance[i]
+
+    score += sum(vendor_importance_weighted)
+    score += sum(name_importance_weighted)
+
+    return score
 
 if __name__ == "__main__":
-    print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python 3.9.7 (x64)","1.0.0.9"))
-    print(return_similarity("cpe:/a:python:python:3.9.7","Python Software Foundation","Python","3.7.7"))
+    print(return_similarity(["cpe","2.3","a","microsoft corporation nuts","edge","1.4.1"],"Microsoft and other people","Edge","1.1.1"))
+    print(return_similarity(["cpe","2.3","a","microsoft corporation nuts","edge","1.4.1"],"ebay corporation and nuts","Edge","1.1.1"))
