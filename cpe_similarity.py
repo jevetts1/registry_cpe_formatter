@@ -1,6 +1,5 @@
 import math,re
 import numpy as np
-from difflib import SequenceMatcher
 
 def return_relationship(string_super,string_sub):
     if string_sub == string_super:
@@ -10,17 +9,13 @@ def return_relationship(string_super,string_sub):
         if string_sub == word:
             return "SUBWORD"
 
+        if word in string_sub:
+            return "SUBSTRING"
+
     if string_sub in string_super:
         return "SUBSTRING"
 
     return "NONE"
-
-def return_string_similarity(string_super,string_sub):
-    if string_super == string_sub:
-        return 1
-    
-    else:
-        return SequenceMatcher(None,string_super,string_sub).ratio()
 
 def return_similarity(cpe,software_vendor,software_name,software_version):
     cpe_vendor = cpe[3]
@@ -49,9 +44,16 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
         #name to vendor relationship
         score += score_system[return_relationship(software_vendor,word)] * 0.25
 
+    other_fields_score_system = {"EQUAL":0.5,"SUBWORD":0.4,"SUBSTRING":0.1,"NONE":0}
+
+    for field in cpe[6:]:
+        if field != "*":
+            score += other_fields_score_system[return_relationship(software_vendor,field)]
+            score += other_fields_score_system[return_relationship(software_name,field)]
+
     versions = [software_version]
 
-    version_in_name = re.search(r"([0-9]+.)+[0-9]+",software_name) #checks if a version number is included in the name - often more accurate than what is stored on the registry
+    version_in_name = re.search(r"([0-9]+\.)+[0-9]+",software_name) #checks if a version number is included in the name - often more accurate than what is stored on the registry
 
     if version_in_name:
         version_in_name = software_name[version_in_name.span()[0]:version_in_name.span()[1]]
@@ -81,7 +83,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
                 else:
                     current_score -= 0.5 / (i + 1)
 
-        current_score -= abs(len(version_split) - len(cpe_version_split)) * 0.5
+        current_score -= abs(len(version_split) - len(cpe_version_split)) * 0.5 #subtracts from the score if the versions are of different lengths
         
         version_scores.append(current_score)
     
@@ -105,17 +107,21 @@ def return_importance_weighted_similarity(cpe,software_vendor,software_name,vend
 
     for i,word in enumerate(software_vendor_split):
         if word in cpe_vendor:
-            vendor_importance_weighted[i] += vendor_importance[i]
+            score += vendor_importance[i]
+        
+        else:
+            score -= vendor_importance[i] * 0.5
 
     for i,word in enumerate(software_name_split):
         if word in cpe_vendor:
-            name_importance_weighted[i] += name_importance[i]
+            score += name_importance[i] * 0.5
 
-    score += sum(vendor_importance_weighted)
-    score += sum(name_importance_weighted)
+        else:
+            score -= name_importance[i] * 0.25
 
     return score
 
 if __name__ == "__main__":
-    print(return_similarity(["cpe","2.3","a","microsoft corporation nuts","edge","1.4.1"],"Microsoft and other people","Edge","1.1.1"))
-    print(return_similarity(["cpe","2.3","a","microsoft corporation nuts","edge","1.4.1"],"ebay corporation and nuts","Edge","1.1.1"))
+    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:*:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java","0.02"))
+    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java Edition","0.02"))
+    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Python Edition","0.02"))

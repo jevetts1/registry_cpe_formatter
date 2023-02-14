@@ -3,3 +3,10 @@ NVD_cpes_processed.json
 NVD_cpes.txt
 similarity.py
 spacy_ner.py
+ml/single_token_vendor_tokenizer.pickle
+ml/single_token_vendor_model/variables/variables.index
+ml/single_token_vendor_model/saved_model.pb
+ml/single_token_vendor_model/keras_metadata.pb
+ml/single_token_vendor_model/fingerprint.pb
+ml/companies_sorted.csv
+ml/single_token_vendor_model/variables/variables.data-00000-of-00001

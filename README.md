@@ -12,4 +12,5 @@ Has functions that create a text file of NVDs CPEs, json of the CPEs, load the w
 
 QUICK START
 Run `create_processed_cpe_json()` to create the json file.
+Run the vendor_ml.ipynb script to train a model and then save it.
 On the main script, run the imports, software inventory and cpe_list cells and then the matches cell.

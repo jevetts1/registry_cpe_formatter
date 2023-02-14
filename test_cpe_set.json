@@ -1,0 +1,17 @@
+[
+    {"Vendor":"Adobe Ltd.","Name":"Adobe Acrobat Pro 1.22","Version":"5.0"},
+    {"Vendor":"Microsoft Corporation","Name":"Visual Studio Code Python","Version":"0.0.4"},
+    {"Vendor":"Microsoft Corporation","Name":"Visual Studio Code Java","Version":"0.0.4"},
+    {"Vendor":"Google LLC","Name":"Google Chrome v0.1.38.1","Version":"8.2.23"},
+    {"Vendor":"Adobe Ltd.","Name":"Adobe Flash Player (x64)","Version":"11.1"},
+    {"Vendor":"Microsoft Corporation","Name":"Microsoft Office Word for Windows","Version":"1.1"},
+    {"Vendor":"Microsoft Corporation","Name":"Microsoft Office Word For Mac 2016","Version":""},  
+    {"Vendor":"Blizzard Entertainment Co.","Name":"Overwatch","Version":"1.15.0.2"},
+    {"Vendor":"Microsoft Corporation","Name":"MS Teams 2020","Version":"4.555.12"},
+    {"Vendor":"Advanced Micro Devices LTD","Name":"AMD Radeon Relive 21.4.1","Version":""},
+    {"Vendor":"Polaris Office","Name":"Machine Learning Report","Version":"2.19.312.0000"},
+    {"Vendor":"7 Zip Co.","Name":"7Zip for Windows","Version":"18.0"},
+    {"Vendor":"Mojang & Microsoft","Name":"Minecraft Java Edition","Version":"1.18"},
+    {"Vendor":"GNU","Name":"GNU Windows Chess Software v19","Version":"5"},
+    {"Vendor":"Python Software Foundation","Name":"Python 2.7 (x64) Binary","Version":"2.553.32.56"}
+]
