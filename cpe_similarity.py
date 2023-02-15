@@ -1,4 +1,4 @@
-import math,re
+import math,re,Levenshtein
 import numpy as np
 
 def return_relationship(string_super,string_sub):
@@ -17,7 +17,9 @@ def return_relationship(string_super,string_sub):
 
     return "NONE"
 
-def return_similarity(cpe,software_vendor,software_name,software_version):
+#*************************STRING RELATIONSHIP SCORE*************************
+
+def return_relationship_similarity(cpe,software_vendor,software_name,software_version):
     cpe_vendor = cpe[3]
     cpe_name = cpe[4]
     cpe_version = cpe[5]
@@ -53,18 +55,16 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     versions = [software_version]
 
-    version_in_name = re.search(r"([0-9]+\.)+[0-9]+",software_name) #checks if a version number is included in the name - often more accurate than what is stored on the registry
+    versions_in_name = re.findall(r"[0-9]+(?:\.[0-9]+)*",software_name) #checks if a version number is included in the name - often more accurate than what is stored on the registry
 
-    if version_in_name:
-        version_in_name = software_name[version_in_name.span()[0]:version_in_name.span()[1]]
-        versions.append(version_in_name)
+    versions.extend(versions_in_name)
 
     version_scores = []
 
     for version in versions: #calculates a version similarity score for both the version in the name (if there is one) and the actual listed software version
         current_score = 0
 
-        cpe_version_split = cpe_version.split(".")
+        cpe_version_split = cpe_version.replace("-",".").split(".") #replace function used to convert dates "2020-09-01" to a standard format using dots
         version_split = version.split(".")
 
         if len(cpe_version_split) > len(version_split):
@@ -73,7 +73,7 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
                     current_score += 0.5 / (i + 1)
 
                 else:
-                    current_score -= 0.5 / (i + 1)
+                    current_score -= 0.5 / (i + 1) 
 
         else:
             for i,number in enumerate(cpe_version_split):
@@ -91,6 +91,8 @@ def return_similarity(cpe,software_vendor,software_name,software_version):
 
     return score
 
+#*************************IMPORTANCE VECTOR SCORE*************************
+
 def return_importance_weighted_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance):
     cpe_vendor = cpe[3]
 
@@ -102,26 +104,43 @@ def return_importance_weighted_similarity(cpe,software_vendor,software_name,vend
     software_vendor_split = software_vendor.replace("_"," ").replace("-"," ").split(" ")
     software_name_split = software_name.replace("_"," ").replace("-"," ").split(" ")
 
-    vendor_importance_weighted = [0 for x in range(len(software_vendor_split))]
-    name_importance_weighted = [0 for x in range(len(software_name_split))]
+    for word in cpe_vendor.replace("-","_").split("_"):
+        if word in software_vendor_split:
+            score += vendor_importance[software_vendor_split.index(word)]
 
-    for i,word in enumerate(software_vendor_split):
-        if word in cpe_vendor:
-            score += vendor_importance[i]
-        
-        else:
-            score -= vendor_importance[i] * 0.5
-
-    for i,word in enumerate(software_name_split):
-        if word in cpe_vendor:
-            score += name_importance[i] * 0.5
-
-        else:
-            score -= name_importance[i] * 0.25
+        if word in software_name_split:
+            score += name_importance[software_name_split.index(word)]
 
     return score
 
+#*************************LEVENSHTEIN SCORE*************************
+
+def return_levenshtein_similarity(cpe,software_vendor,software_name):
+    cpe_vendor = cpe[3]
+    cpe_name = cpe[4]
+    cpe_version = cpe[5]
+
+    software_vendor = software_vendor.lower()
+    software_name = software_name.lower()
+
+    score = 0
+
+    for c,s,multiplier in [[cpe_vendor,software_vendor,1],[cpe_name,software_name,1]]:
+        max_string_len = max(len(c),len(s))
+        score += Levenshtein.ratio(c,s) * multiplier
+
+    return score
+
+#*************************ENSEMBLE SCORE*************************
+
+def ensemble_similarity(cpe,software_vendor,software_name,software_version,vendor_importance,name_importance):
+    relationship_score = return_relationship_similarity(cpe,software_vendor,software_name,software_version)
+    importance_score = return_importance_weighted_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance)
+    levenshtein_score = return_levenshtein_similarity(cpe,software_vendor,software_name)
+
+    return 1 / (1 + math.exp(-sum([relationship_score,importance_score,levenshtein_score]) / 2))
+
 if __name__ == "__main__":
-    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:*:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java","0.02"))
-    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java Edition","0.02"))
-    print(return_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Python Edition","0.02"))
+    print(ensemble_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:*:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java","0.02",[1,0.2],[0.4,0.6,0.1,1]))
+    print(ensemble_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java","0.0.2",[1,0.2],[0.4,0.6,0.1,1]))
+    print(ensemble_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:java:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Python","0.0.2",[1,0.2],[0.4,0.6,0.1,1]))
