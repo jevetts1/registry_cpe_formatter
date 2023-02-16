@@ -101,8 +101,8 @@ def return_importance_weighted_similarity(cpe,software_vendor,software_name,vend
 
     score = 0
 
-    software_vendor_split = software_vendor.replace("_"," ").replace("-"," ").split(" ")
-    software_name_split = software_name.replace("_"," ").replace("-"," ").split(" ")
+    software_vendor_split = software_vendor.split(" ")
+    software_name_split = software_name.split(" ")
 
     for word in cpe_vendor.replace("-","_").split("_"):
         if word in software_vendor_split:
@@ -139,6 +139,19 @@ def ensemble_similarity(cpe,software_vendor,software_name,software_version,vendo
     levenshtein_score = return_levenshtein_similarity(cpe,software_vendor,software_name)
 
     return 1 / (1 + math.exp(-sum([relationship_score,importance_score,levenshtein_score]) / 2))
+
+#*************************IMPORTANCE ASSIGNING*************************
+
+def assign_importance(string,important_words_list):
+    formatted_string = string.lower().split()
+
+    string_importance = []
+
+    for word in formatted_string:
+        if word in important_words_list: string_importance.append(1)
+        else: string_importance.append(0.5)
+
+    return string_importance
 
 if __name__ == "__main__":
     print(ensemble_similarity("cpe:2.3:a:microsoft:visual_studio_code:0.0.2:*:*:*:*:*:*:*".split(":"),"Microsoft Corporation","Visual Studio Code Java","0.02",[1,0.2],[0.4,0.6,0.1,1]))
