@@ -1,6 +1,6 @@
 
 NVD_cpes_processed.json
-NVD_cpes.txt
+NVD_vendors.txt
 similarity.py
 spacy_ner.py
 ml/single_token_vendor_tokenizer.pickle
@@ -13,3 +13,4 @@ ml/single_token_vendor_model/variables/variables.data-00000-of-00001
 fasttext_notebook.ipynb
 NVD_cpes_cleaned.txt
 ml/ml_importance.py
+ml
