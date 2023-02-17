@@ -1,4 +1,4 @@
-main_script.py:
+main.py:
 Run to generate potential CPEs on your system.
 
 cpe_similarity.py
@@ -17,4 +17,4 @@ utils.py
 Quality of life utilities.
 
 QUICK START
-Run main_script.py
+Run main.py

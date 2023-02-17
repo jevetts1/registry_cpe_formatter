@@ -62,7 +62,7 @@ def return_version_similarity(cpe,software_name,software_version):
 
 #*************************IMPORTANCE VECTOR SCORE*************************
 
-def return_importance_weighted_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance):
+def return_importance_relationship_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance):
     cpe_vendor = cpe[3]
     cpe_name = cpe[4]
 
@@ -128,7 +128,7 @@ def return_levenshtein_similarity(cpe,software_vendor,software_name):
 
 def ensemble_similarity(cpe,software_vendor,software_name,software_version,vendor_importance,name_importance):
     version_score = return_version_similarity(cpe,software_name,software_version)
-    importance_score,relationship_score = return_importance_weighted_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance)
+    importance_score,relationship_score = return_importance_relationship_similarity(cpe,software_vendor,software_name,vendor_importance,name_importance)
     levenshtein_score = return_levenshtein_similarity(cpe,software_vendor,software_name)
 
     return 1 / (1 + math.exp(-sum([relationship_score,importance_score,levenshtein_score,version_score]) / 1.5))
